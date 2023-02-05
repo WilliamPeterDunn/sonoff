@@ -17,7 +17,7 @@ $data = $switch = $startup = $pulse = $pulseWidth = $ssid = $otaUnlock = $fwVers
 $signalStrength = '';
 
 //Variables used in set messages
-$switch_value = $startup_value = $pulse_value = $pulseWidth_value = $ssid_value = $password_value = $downloadUrl_value = $shag256sum_value = '';
+$switch_value = $startup_value = $pulse_value = $pulseWidth_value = $ssid_value = $password_value = $downloadUrl_value = $sha256sum_value = '';
 
 $target_ip = '192.168.101.191';
 $target_port = '8081';
@@ -139,39 +139,51 @@ function callDeviceAPI($url, $json){
 ?>
   <div class='container d-flex justify-content-center'>
 	<div class='border bg-light p-4 m-4 rounded'>
-		<form method='POST'>
-		<h1>
-		 <span class="bi bi-lightbulb-fill"></span>
-		 <span class="bi bi-lightbulb-fill text-success"></span>
-		 <span class="bi bi-lightbulb-fill text-danger"></span>
-		 </h1>
-			<div class="form-check form-switch">
-			  <input class="form-check-input" type="checkbox" role="switch" id="chkstate" <?= $switchstate ?>>
-			  <label class="form-check-label" for="chkstate">Light state</label>
-			 
+		<form method='POST'>			
+			<div class='d-flex-inline'>
+				<div class='d-flex'>
+				  <div onclick="lightClicked();" class="h1 bi bi-lightbulb border-dark border rounded p-2 mx-1" style='background-color:yellow;'></div>
+				  <div class="d-none h1 bi bi-lightbulb border-dark border rounded p-2 mx-1" style='background-color:red;'></div>
+				  <div class="d-none h1 bi bi-lightbulb border-dark border rounded p-2 mx-1"></div>
+				 
+				 
+				<div class='d-flex border rounded border-dark border-2 mb-2'>
+					<div class="h1 bi bi-wifi rounded p-2"></div>
+					<div class='p-2 bg-dark text-light text-start m-0 rounded-end'>
+					<table class='text-light'>
+						<tr><td class='pe-2'>Signal</td><td><div class='badge bg-light text-dark mt-1'>-69 dBm</div></td></tr>
+						<tr><td class='pe-2'>SSID</td><td><div class='badge bg-light text-dark mt-1'>48:8F:5A:D:FD:50</div></td></tr>
+						<tr><td class='pe-2'>BSSID</td><td><div class='badge bg-light text-dark mt-1'>Qwerty</div></td></tr>
+					</table>
+					</div>					
+				</div>
+				  
+				  <div class="d-none h1 bi bi-wifi-off border-dark border border-2 rounded p-2 mx-1"></div>
+				</div>
 			</div>		
+				
 			<!--button onclick="setEndPoint('switch')" name='switchOffBtn' class='btn btn-danger' type='submit'>Switch</button-->
 			<!--button onclick="setEndPoint('info')" name='btnGetStatus' class='btn btn-primary' type='submit'>Get status</button-->
-			<button name='btnSend' class='btn btn-primary' type='submit'>Send request</button>
-			<input id='endpoint'  name='endpoint' value='info'>			
-			<input id='newState'  name='newState' value='off'>
 			
+			<input hidden id='endpoint'  name='endpoint' value='info'>
+			<input hidden id='newState'  name='newState' value='off'>
+			<div class='d-flex'>	
+				<select id='endpoint-select' class="form-select">
+				  <option selected>Select action</option>
+				  <option value="info">info</option>
+				  <option value="switch">switch</option>
+				  <option value="startup">startup</option>
+				  <option value="signal_strength">signal_strength</option>
+				  <option value="pulse">pulse</option>
+				  <option value="wifi">wifi</option>			   
+				  <option value="ota_unlock">ota_unlock</option>			   
+				  <option value="ota_flash">ota_flash</option>			   
+				</select>
+				<button name='btnSend' class='m-2 btn btn-primary text-nowrap' type='submit'>Send request</button>
+			</div>
 			
-			<select id='endpoint-select' class="form-select">
-			  <option selected>Select action</option>
-			  <option value="info">info</option>
-			  <option value="switch">switch</option>
-			  <option value="startup">startup</option>
-			  <option value="signal_strength">signal_strength</option>
-			  <option value="pulse">pulse</option>
-			  <option value="wifi">wifi</option>			   
-			  <option value="ota_unlock">ota_unlock</option>			   
-			  <option value="ota_flash">ota_flash</option>			   
-			</select>
-			
-			<!--div id='result'><pre><?php print_r($data); ?></pre></div-->
-
 			<?php
+			
 			if ($status!=''){
 				$seq = $status['seq'];
 				$error = $status['error'];
@@ -211,51 +223,75 @@ function callDeviceAPI($url, $json){
 				}
 			}
 			?>
-			
-			<div id='info' class='d-none bg-dark text-light border endpoint-details'>			
-				info (n/a)
+			<div class=my-2>
+				<div id='info' class='d-none bg-dark text-light border endpoint-details'>			
+					<i>info has no parameters</i>
+				</div>
+				<div id='switch' class='d-none bg-dark text-light border endpoint-details rounded'>			
+					<span class='m-1'>switch (on / off)</span>
+					<div class="m-1 form-check form-switch">					
+					  <input class="form-check-input" type="checkbox" role="switch" id="chkstate" <?= $switchstate ?>>
+					  <label class="form-check-label" for="chkstate">Light state</label>			 
+					</div>
+				</div>			
+				<div id='startup' class='d-none bg-dark text-light border endpoint-details rounded'>					
+					<span class='m-1'>startup 
+					startup_value=(on / off / stay)</span>
+					<div class="m-1 form-check form-switch">					
+					  <input class="form-check-input" type="checkbox" role="switch" id="setStartup" >
+					  <label class="form-check-label" for="chkstate">Startup value</label>			 
+					</div>
+				</div>
+				<div id='pulse' class='d-none bg-dark text-light border endpoint-details rounded'>							
+					<?php
+						$pulse_value = 'on';		// [on | off]
+						$pulseWidth_value = '3000'; //  500~36000000ms in multiples of 500
+					?>
+					<span class='m-1'>inching settings (on / off)</span>
+					<div class="m-1 form-check form-switch">					
+					  <input class="form-check-input" type="checkbox" role="switch" id="setStartup" >
+					  <label class="form-check-label" for="chkstate">Inching enabled</label>
+					</div>
+					<div class='m-1'>
+						pulseWidth_value
+						<input id='pulseWidth_value'  name='pulseWidth_value' value='3000'>
+					</div>
+				</div>				
+				<div id='signal_strength' class='d-none bg-dark text-light border endpoint-details rounded'>			
+					<i>signal_strength has no parameters</i>
+				</div>
+				<div id='wifi' class='d-none bg-dark text-light border endpoint-details'>			
+					wifi
+					$ssid_value = '';
+					$password_value = '';
+					<div>	
+						<input id='ssid_value'  name='ssid_value' value=''>
+						<input id='password_value'  name='password_value' value=''>
+					</div>
+				</div>
+				<div id='ota_unlock' class='d-none bg-dark text-light border endpoint-details rounded'>			
+					<i>ota_unlock has no parameters</i>
+				</div>
+				<div id='ota_flash' class='d-none bg-dark text-light border endpoint-details rounded'>			
+					ota_flash
+					$downloadUrl_value = '';
+					$sha256sum_value = '';
+					<div>
+						<input id='downloadUrl_value'  name='downloadUrl_value' value=''>
+						<input id='sha256sum_value'  name='sha256sum_value' value=''>
+					</div>
+				</div>
 			</div>
-			<div id='switch' class='d-none bg-dark text-light border endpoint-details'>			
-				switch (on / off)
-			</div>			
-			<div id='startup' class='d-none bg-dark text-light border endpoint-details'>			
-				startup 
-				startup_value=(on / off / stay)
-			</div>
-			<div id='pulse' class='d-none bg-dark text-light border endpoint-details'>			
-				inching settings
-				$pulse_value = 'on';		// [on | off]
-				$pulseWidth_value = '3000'; //  500~36000000ms in multiples of 500
-			</div>
-			<div id='signal_strength' class='d-none bg-dark text-light border endpoint-details'>			
-				signal_strength
-			</div>
-			<div id='wifi' class='d-none bg-dark text-light border endpoint-details'>			
-				wifi
-				$ssid_value = '';
-				$password_value = '';
-			</div>
-			<div id='ota_unlock' class='d-none bg-dark text-light border endpoint-details'>			
-				ota_unlock
-			</div>
-			<div id='ota_flash' class='d-none bg-dark text-light border endpoint-details'>			
-				ota_flash
-				$downloadUrl_value = '';
-				$sha256sum_value = '';
-			</div>
-			
-			
 		</form>		
 	</div>
-  </div>  
+ </div>  
   <script>
 	function setEndPoint(endpoint){		
 		document.getElementById("endpoint").value = endpoint;
 	}
 	
 	$('#chkstate').click(function(){
-		var chkstate = $('#chkstate').prop('checked');
-		console.log(chkstate);
+		var chkstate = $('#chkstate').prop('checked');		
 		if(chkstate){
 			document.getElementById("newState").value = 'on';
 		} else {
@@ -266,14 +302,14 @@ function callDeviceAPI($url, $json){
 	$('#endpoint-select').change(function(){
 		var alldivs = $('.endpoint-details');
 		alldivs.addClass("d-none");
-		//var ep = $('#endpoint-select').value;
-		//console.log(alldivs);
 		var showdiv = document.getElementById(this.value);
-		//console.log(showdiv);
 		showdiv.classList.remove("d-none");
-		document.getElementById("endpoint").value = this.value;
-		
+		document.getElementById("endpoint").value = this.value;		
 	});
+	
+	function lightClicked(){
+		alert('works');
+	}
   </script>  
   </body>
  </html>
