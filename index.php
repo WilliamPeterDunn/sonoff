@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Sonoff controller</title>
+	<link rel="icon" href="/sonoff/favicon.ico" type="image/x-icon" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">	
 	<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
@@ -145,20 +146,28 @@ function callDeviceAPI($url, $json){
 				  <div onclick="lightClicked();" class="h1 bi bi-lightbulb border-dark border rounded p-2 mx-1" style='background-color:yellow;'></div>
 				  <div class="d-none h1 bi bi-lightbulb border-dark border rounded p-2 mx-1" style='background-color:red;'></div>
 				  <div class="d-none h1 bi bi-lightbulb border-dark border rounded p-2 mx-1"></div>
-				 
-				 
-				<div class='d-flex border rounded border-dark border-2 mb-2'>
-					<div class="h1 bi bi-wifi rounded p-2"></div>
-					<div class='p-2 bg-dark text-light text-start m-0 rounded-end'>
-					<table class='text-light'>
-						<tr><td class='pe-2'>Signal</td><td><div class='badge bg-light text-dark mt-1'>-69 dBm</div></td></tr>
-						<tr><td class='pe-2'>SSID</td><td><div class='badge bg-light text-dark mt-1'>48:8F:5A:D:FD:50</div></td></tr>
-						<tr><td class='pe-2'>BSSID</td><td><div class='badge bg-light text-dark mt-1'>Qwerty</div></td></tr>
-					</table>
-					</div>					
-				</div>
-				  
-				  <div class="d-none h1 bi bi-wifi-off border-dark border border-2 rounded p-2 mx-1"></div>
+
+					<div class='d-flex border rounded border-dark border-2 mb-2'>
+						<div class="h1 bi bi-wifi rounded p-2"></div>
+						<div class='p-2 bg-dark text-light text-start m-0 rounded-end'>
+						<table class='text-light'>
+							<tr><td class='pe-2'>Signal</td><td><div class='badge bg-light text-dark mt-1'>-69 dBm</div>		</td></tr>
+							<tr><td class='pe-2'>SSID</td><td><div class='badge bg-light text-dark mt-1'>48:8F:5A:D:FD:50</div>	</td></tr>
+							<tr><td class='pe-2'>BSSID</td><td><div class='badge bg-light text-dark mt-1'>Qwerty</div>			</td></tr>
+						</table>
+						</div>					
+					</div>
+					
+					<div class='configinput'>
+						<label for="IP_address">IP</label>
+						<input type='text' id='IP_address' name='IP_address' size='11' value = '192.168.101.191'>
+						<label for="IP_address">Port</label>			 
+						<input type='text' id='port' name='port' value = '8101' size='1'>			 <br>
+						<label for="IP_address">Target device ID</label>			 
+						<input class='my-1' type='text' id='target' name='target' value = '1000EADD3D' size='9'>
+					</div>
+					  
+					<div class="d-none h1 bi bi-wifi-off border-dark border border-2 rounded p-2 mx-1"></div>
 				</div>
 			</div>		
 				
@@ -205,7 +214,7 @@ function callDeviceAPI($url, $json){
 					echo 	"<div class='border border-dark bg-dark text-light m-1 p-1 rounded'>Startup status<br><div class='badge bg-light text-dark mt-1'>" . $startup . "</div></div>";
 					echo 	"<div class='border border-dark bg-dark text-light m-1 p-1 rounded'>Device ID<br><div class='badge bg-light text-dark mt-1'>" . $deviceid . "</div></div>";
 					echo 	"<div class='border border-dark bg-dark text-light m-1 p-1 rounded'>Inching mode<br><div class='badge bg-light text-dark mt-1'>" . $pulse . "</div></div>";
-					echo 	"<div class='border border-dark bg-dark text-light m-1 p-1 rounded'>Pulse width<br><div class='badge bg-light text-dark mt-1'>" . $pulseWidth . "</div></div>";
+					echo 	"<div class='border border-dark bg-dark text-light m-1 p-1 rounded'>Duration<br><div class='badge bg-light text-dark mt-1'>" . $pulseWidth . "</div></div>";
 					
 					echo "</div>";
 					echo "<div class='d-flex p-1 m-1 border border-dark border-2 text-center rounded'>";
@@ -223,7 +232,7 @@ function callDeviceAPI($url, $json){
 				}
 			}
 			?>
-			<div class=my-2>
+			<div>
 				<div id='info' class='d-none bg-dark text-light border endpoint-details'>			
 					<i>info has no parameters</i>
 				</div>
@@ -253,7 +262,7 @@ function callDeviceAPI($url, $json){
 					  <label class="form-check-label" for="chkstate">Inching enabled</label>
 					</div>
 					<div class='m-1'>
-						pulseWidth_value
+						Duration
 						<input id='pulseWidth_value'  name='pulseWidth_value' value='3000'>
 					</div>
 				</div>				
