@@ -6,6 +6,11 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">	
 	<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+	<style>
+	.bg-yellow{
+		background-color: yellow;
+	}
+	</style>
   </head>
   <body class='bg-dark'>
   
@@ -14,7 +19,7 @@
 		<form method='POST'>			
 			<div class='d-flex-inline'>
 				<div class='d-flex'>
-				  <div onclick="lightClicked();" class="h1 bi bi-lightbulb border-dark border rounded p-2 mx-1" style='background-color:yellow;'>
+				  <div id='light-status' onclick="lightClicked();" class="h1 bi bi-lightbulb border-dark border rounded p-2 mx-1 bg-yellow" >
 				  <div id='spinner' class="d-none spinner-border"></div>
 				  </div>
 				  
@@ -148,13 +153,13 @@
 		if(chkstate){
 			//alert('Light is on');
 			document.getElementById("newState").value = 'on';
-			//callDeviceAPI('switch','on');
-			callDeviceAPI('debug','on');
+			callDeviceAPI('switch','on');
+			//callDeviceAPI('debug','on');
 		} else {
 			//alert('Light is off');
 			document.getElementById("newState").value = 'off';
-			//callDeviceAPI('switch', 'off');
-			callDeviceAPI('debug','on');
+			callDeviceAPI('switch', 'off');
+			//callDeviceAPI('debug','on');
 		}		
 	}
 	
@@ -165,17 +170,26 @@
 	  $.ajax({
 		type: "POST",
 		url: "CallSonoffApi.php",
+		timeout: 10000,
 		data: {	
 		  'endpoint':endpoint,
 		  'newState':newState
 		},
+		
 		success: function(result) {
 		  $("#results").html(result);
 		  console.log('ajax post complete');
 		  $('#spinner').addClass("d-none");
+		},
+		error: function(xhr) {
+		  console.log('****** ajax post error');
+		  console.log(xhr.status);
+		  console.log(xhr.statusText);		  
+		  $('#spinner').addClass("d-none");
+		  $('#light-status').removeClass("bg-yellow");
+		  $('#light-status').addClass("bg-danger");
 		}
 	  });
-	  
 	}
 	
 	function updateStatus(){
